@@ -1,0 +1,22 @@
+{
+  "name": "pratikoul",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Monorepo for pratikoul project (Vite + React frontend, NestJS backend)",
+  "workspaces": [
+    "apps/*",
+    "libs/*"
+  ],
+  "scripts": {
+    "dev:front-end": "pnpm --filter front-end --workspace-root dev",
+    "dev:back-end": "pnpm --filter back-end --workspace-root start:dev",
+    "build:front-end": "pnpm --filter front-end --workspace-root build",
+    "build:back-end": "pnpm --filter back-end --workspace-root build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
