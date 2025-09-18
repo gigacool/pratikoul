@@ -1,3 +1,4 @@
+import { MetricListItemDto } from '../../application/dto/metric-list-item.dto';
 import { Injectable } from '@nestjs/common';
 import { Metric } from '../entities/metric.entity';
 import { MetricRepository } from '../repositories/metric.repository';
@@ -6,8 +7,19 @@ import { MetricRepository } from '../repositories/metric.repository';
 export class MetricService {
   constructor(private readonly repository: MetricRepository) {}
 
-  async getAll(): Promise<Metric[]> {
-    return this.repository.findAll();
+  /**
+   * Returns a synthesized list of metrics for the list resource (uuid, name, description, HATEOAS link)
+   */
+  async getListItems(): Promise<MetricListItemDto[]> {
+    const metrics = await this.repository.findAll();
+    return metrics.map((metric) => ({
+      uuid: metric.uuid,
+      name: metric.name,
+      description: metric.description,
+      _links: {
+        self: { href: `/metrics/${metric.uuid}` },
+      },
+    }));
   }
 
   async getById(uuid: string): Promise<Metric | null> {
@@ -21,5 +33,4 @@ export class MetricService {
   async update(uuid: string, metric: Partial<Metric>): Promise<void> {
     await this.repository.update(uuid, metric);
   }
-
 }

@@ -12,7 +12,7 @@ export class FileMetricRepository extends MetricRepository {
     try {
       await fs.access(METRICS_FILE);
     } catch {
-      await fs.mkdir(join(process.cwd(), 'data'), { recursive: true });
+      await fs.mkdir(join(process.cwd(), '.data'), { recursive: true });
       await fs.writeFile(METRICS_FILE, '[]', 'utf-8');
     }
   }

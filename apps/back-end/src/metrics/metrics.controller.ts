@@ -1,14 +1,28 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { MetricUseCase } from './application/use-cases/metric.use-case';
 import { MetricDto } from './application/dto/metric.dto';
+import { MetricListItemDto } from './application/dto/metric-list-item.dto';
 
 @Controller('metrics')
 export class MetricsController {
-  constructor(private readonly useCase: MetricUseCase) { }
+  constructor(private readonly useCase: MetricUseCase) {}
 
+  /**
+   * Returns a paginated synthesized list of metrics for the list resource (uuid, name, description, HATEOAS link)
+   */
   @Get()
-  async getAll() {
-    return this.useCase.getAll();
+  async getAll(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
+  ): Promise<{
+    items: MetricListItemDto[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 10;
+    return this.useCase.getListItemsPaginated(pageNum, limitNum);
   }
 
   @Get(':id')
