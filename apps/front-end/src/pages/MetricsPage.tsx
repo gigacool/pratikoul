@@ -1,15 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Pagination, Card, Row, Col, Spin, Typography, message } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-
-const { Title } = Typography;
-
-interface MetricListItem {
-  uuid: string;
-  name: string;
-  description: string;
-  _links: { self: { href: string } };
-}
+import React from 'react';
+import { Row, Col, message } from 'antd';
+import { MetricList, type MetricListItem } from './MetricList';
+import { MetricDetail } from './MetricDetail';
 
 interface PaginatedMetricList {
   items: MetricListItem[];
@@ -19,7 +11,7 @@ interface PaginatedMetricList {
   _links: object;
 }
 
-interface MetricDetail extends MetricListItem {
+interface MetricDetailType extends MetricListItem {
   valueType: string;
   unit: string;
   values: Array<{ value: number; timestamp: string }>;
@@ -28,13 +20,13 @@ interface MetricDetail extends MetricListItem {
 }
 
 export function MetricsPage() {
-  const [metrics, setMetrics] = useState<MetricListItem[]>([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(5);
-  const [loading, setLoading] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState<MetricDetail | null>(null);
-  const [detailLoading, setDetailLoading] = useState(false);
+  const [metrics, setMetrics] = React.useState<MetricListItem[]>([]);
+  const [total, setTotal] = React.useState(0);
+  const [page, setPage] = React.useState(1);
+  const [limit, setLimit] = React.useState(5);
+  const [loading, setLoading] = React.useState(false);
+  const [selectedMetric, setSelectedMetric] = React.useState<MetricDetailType | null>(null);
+  const [detailLoading, setDetailLoading] = React.useState(false);
 
   const fetchMetrics = async (pageNum = 1, pageSize = 10) => {
     setLoading(true);
@@ -45,7 +37,7 @@ export function MetricsPage() {
       setTotal(data.total);
       setPage(data.page);
       setLimit(data.limit);
-    } catch (e) {
+    } catch {
       message.error('Failed to fetch metrics');
     } finally {
       setLoading(false);
@@ -56,85 +48,66 @@ export function MetricsPage() {
     setDetailLoading(true);
     try {
       const res = await fetch(`/api/metrics/${uuid}`);
-      const data: MetricDetail = await res.json();
+      const data: MetricDetailType = await res.json();
       setSelectedMetric(data);
-    } catch (e) {
+    } catch {
       message.error('Failed to fetch metric details');
     } finally {
       setDetailLoading(false);
     }
   };
 
-  useEffect(() => {
+  // Add Metric handler (moved to top level)
+  const handleAddMetric = async () => {
+    const newMetric = {
+      name: 'New Metric',
+      description: '',
+      valueType: 'integer',
+      unit: '',
+      values: [],
+      aggregation: 'sum',
+      tags: [],
+    };
+    try {
+      const res = await fetch('/api/metrics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newMetric),
+      });
+      if (!res.ok) throw new Error('Failed to create metric');
+      await fetchMetrics(page, limit);
+      const latest = metrics.find(m => m.name === 'New Metric' && m.description === '');
+      if (latest) fetchMetricDetail(latest.uuid);
+      else setSelectedMetric(null);
+    } catch {
+      message.error('Failed to create metric');
+    }
+  };
+
+  React.useEffect(() => {
     fetchMetrics(page, limit);
   }, [page, limit]);
-
-  const columns: ColumnsType<MetricListItem> = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
-    },
-  ];
 
   return (
     <Row gutter={24} style={{ minHeight: '100vh', padding: 24 }}>
       <Col span={10}>
-        <Card title={<Title level={4}>Metrics</Title>}>
-          <Table
-            rowKey="uuid"
-            columns={columns}
-            dataSource={metrics}
-            loading={loading}
-            pagination={false}
-            onRow={record => ({
-              onClick: () => fetchMetricDetail(record.uuid),
-              style: { cursor: 'pointer' },
-            })}
-            rowClassName={record => (selectedMetric?.uuid === record.uuid ? 'ant-table-row-selected' : '')}
-          />
-          <Pagination
-            style={{ marginTop: 16, textAlign: 'right' }}
-            current={page}
-            pageSize={limit}
-            total={total}
-            onChange={(p, l) => {
-              setPage(p);
-              setLimit(l);
-            }}
-            showSizeChanger
-            pageSizeOptions={[5, 10, 20, 50]}
-          />
-        </Card>
+        <MetricList
+          metrics={metrics}
+          loading={loading}
+          page={page}
+          limit={limit}
+          total={total}
+          onPageChange={(p, l) => {
+            setPage(p);
+            setLimit(l);
+          }}
+          onSelect={fetchMetricDetail}
+          selectedUuid={selectedMetric?.uuid}
+          onAdd={handleAddMetric}
+        />
       </Col>
       <Col span={14}>
-        <Card title={<Title level={4}>Metric Details</Title>} style={{ minHeight: 400 }}>
-          {detailLoading ? (
-            <Spin />
-          ) : selectedMetric ? (
-            <div>
-              <p><b>Name:</b> {selectedMetric.name}</p>
-              <p><b>Description:</b> {selectedMetric.description}</p>
-              <p><b>Value Type:</b> {selectedMetric.valueType}</p>
-              <p><b>Unit:</b> {selectedMetric.unit}</p>
-              <p><b>Aggregation:</b> {selectedMetric.aggregation}</p>
-              <p><b>Tags:</b> {selectedMetric.tags.join(', ')}</p>
-              <p><b>Values:</b></p>
-              <ul>
-                {selectedMetric.values.map((v, idx) => (
-                  <li key={idx}>{v.value} @ {v.timestamp}</li>
-                ))}
-              </ul>
-            </div>
-          ) : (
-            <span>Select a metric to see details</span>
-          )}
-        </Card>
+        <MetricDetail selectedMetric={selectedMetric} loading={detailLoading} />
       </Col>
     </Row>
   );
