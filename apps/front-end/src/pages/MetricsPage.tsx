@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col, message } from 'antd';
-import { MetricList, type MetricListItem } from './MetricList';
-import { MetricDetail } from './MetricDetail';
+import { MetricList, type MetricListItem } from '../domains/metrics/components/MetricList';
+import { MetricDetail } from '../domains/metrics/components/MetricDetail';
 
 interface PaginatedMetricList {
   items: MetricListItem[];

@@ -1,0 +1,88 @@
+.layout {}
+
+.header {
+    background-color: #fff;
+    color: #131319;
+
+    height: 64px;
+    max-height: 64px;
+    min-height: 64px;
+
+    margin: 0;
+    padding: 0 12px;
+    z-index: 1;
+    box-shadow: 0 2px 8px #eeeff3;
+
+    display: flex;
+    align-items: center; // Ensures children are centered vertically
+    justify-content: flex-start; // Space out items
+
+    h1 {
+        text-transform: uppercase;
+        font-size: 1.4rem;
+        margin: 0;
+        padding: 0 12px;
+    }
+
+    .divider {
+        height: 24px;
+        width: 1px;
+        background-color: #d3d3d3;
+        margin: 0 12px;
+    }
+
+    nav {
+        display: flex; // Ensure the nav items are inline
+        align-items: center; // Center nav items vertically
+
+        a {
+            text-decoration: none;
+            color: #131319;
+            padding: 0 12px;
+            position: relative;
+            transition: color 0.3s ease;
+
+    
+            &:hover {
+                background-color: #eeeff3;
+                transition: background-color 0.3s ease;
+            }
+
+            &::after {
+                content: '';
+                display: block;
+                width: 100%; 
+                position: absolute; 
+                bottom: 0; 
+                left: 0; 
+                height: 0px;
+                background-color: #041295;
+                border-radius: 2px 2px 0 0;
+                transition: height 0.3s ease;
+            }
+
+            &.active::after {
+                height: 4px;
+            }
+
+        }
+
+    }
+
+
+
+}
+
+.sider {
+    background-color: #fff;
+}
+
+.content {
+    padding: 20px;
+}
+
+.footer {
+    text-align: center;
+    background-color: #001529;
+    color: #fff;
+}

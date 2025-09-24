@@ -1,27 +1,9 @@
 import React from 'react';
 import { Table, Pagination, Card, Typography, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import type { MetricListItem, MetricListProps } from '../types';
 
 const { Title } = Typography;
-
-export interface MetricListItem {
-  uuid: string;
-  name: string;
-  description: string;
-  _links: { self: { href: string } };
-}
-
-interface MetricListProps {
-  metrics: MetricListItem[];
-  loading: boolean;
-  page: number;
-  limit: number;
-  total: number;
-  onPageChange: (page: number, limit: number) => void;
-  onSelect: (uuid: string) => void;
-  selectedUuid?: string | null;
-  onAdd?: () => void;
-}
 
 export const MetricList: React.FC<MetricListProps> = ({
   metrics,
