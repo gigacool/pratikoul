@@ -1,7 +1,18 @@
 import { MetricListItemDto } from '../../application/dto/metric-list-item.dto';
+import { MetricValueDto } from '../../application/dto/metric.dto';
 import { Injectable } from '@nestjs/common';
 import { Metric } from '../entities/metric.entity';
 import { MetricRepository } from '../repositories/metric.repository';
+
+function getLatestValue(values: MetricValueDto[]): MetricValueDto | null {
+  if (values.length === 0) {
+    return null;
+  }
+
+  return values.reduce((latest, current) => {
+    return new Date(current.timestamp) > new Date(latest.timestamp) ? current : latest;
+  });
+}
 
 @Injectable()
 export class MetricService {
@@ -12,14 +23,19 @@ export class MetricService {
    */
   async getListItems(): Promise<MetricListItemDto[]> {
     const metrics = await this.repository.findAll();
-    return metrics.map((metric) => ({
-      uuid: metric.uuid,
-      name: metric.name,
-      description: metric.description,
-      _links: {
-        self: { href: `/metrics/${metric.uuid}` },
-      },
-    }));
+    return metrics.map((metric) => {
+      const latest = getLatestValue(metric.values);
+      return {
+        uuid: metric.uuid,
+        name: metric.name,
+        lastTimestamp: latest ? latest.timestamp : undefined,
+        lastValue: latest ? latest.value : undefined,
+        description: metric.description,
+        _links: {
+          self: { href: `/metrics/${metric.uuid}` },
+        },
+      };
+    });
   }
 
   async getById(uuid: string): Promise<Metric | null> {

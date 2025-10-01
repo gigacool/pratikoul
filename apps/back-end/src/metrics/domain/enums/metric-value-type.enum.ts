@@ -4,5 +4,4 @@ export enum MetricValueType {
   Integer = 'integer',
   Decimal = 'decimal',
   Status = 'status',
-  // Add more as needed
 }

@@ -38,7 +38,7 @@ export class FileMetricRepository extends MetricRepository {
 
   async findById(uuid: string): Promise<Metric | null> {
     const metrics = await this.readFile();
-    return metrics.find(m => m.uuid === uuid) ?? null;
+    return metrics.find((m) => m.uuid === uuid) ?? null;
   }
 
   async save(metric: Metric): Promise<void> {

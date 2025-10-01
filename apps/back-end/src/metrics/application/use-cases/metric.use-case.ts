@@ -1,4 +1,5 @@
 import { MetricListItemDto } from '../dto/metric-list-item.dto';
+
 export interface PaginatedMetricList {
   items: MetricListItemDto[];
   total: number;
@@ -11,6 +12,7 @@ export interface PaginatedMetricList {
     last: { href: string };
   };
 }
+
 import { Injectable } from '@nestjs/common';
 import { MetricService } from '../../domain/services/metric.service';
 import { MetricDto } from '../dto/metric.dto';
@@ -33,7 +35,7 @@ export class MetricUseCase {
     const start = (page - 1) * limit;
     const end = start + limit;
     const items = all.slice(start, end);
-
+    console.log(all.length)
     // Calculate last page
     const lastPage = Math.max(1, Math.ceil(total / limit));
     // Helper to build link
