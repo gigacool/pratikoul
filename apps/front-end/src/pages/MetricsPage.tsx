@@ -28,6 +28,7 @@ export function MetricsPage() {
   const [selectedMetric, setSelectedMetric] = React.useState<MetricDetailType | null>(null);
   const [detailLoading, setDetailLoading] = React.useState(false);
 
+
   const fetchMetrics = async (pageNum = 1, pageSize = 10) => {
     setLoading(true);
     try {

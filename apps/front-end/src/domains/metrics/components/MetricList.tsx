@@ -27,6 +27,16 @@ export const MetricList: React.FC<MetricListProps> = ({
       dataIndex: 'description',
       key: 'description',
     },
+  {
+      title: 'Last Value',
+      dataIndex: 'lastValue',
+      key: 'lastValue',
+    },
+        {
+      title: 'Last Updated',
+      dataIndex: 'lastTimestamp',
+      key: 'lastTimestamp',
+    },
   ];
 
   return (
