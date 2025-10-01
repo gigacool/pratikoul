@@ -15,5 +15,6 @@ import { MetricsController } from './metrics.controller';
     },
   ],
   controllers: [MetricsController],
+  exports: [MetricRepository, MetricService],
 })
 export class MetricsModule {}

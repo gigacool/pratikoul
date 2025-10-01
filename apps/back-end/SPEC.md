@@ -668,6 +668,24 @@ Key methods:
 ### Purpose
 Dashboards provide configurable tile-based layouts to visualize metrics and KPIs using **react-grid-layout** on the front-end.
 
+### Ownership & Permissions
+
+Dashboards are **owned by users** with the following access control:
+
+**Read Access (View)**:
+- All authenticated users can view all dashboards
+- Dashboards are visible to everyone in the organization
+
+**Write Access (Edit/Delete)**:
+- **Owner**: The user who created the dashboard can edit and delete it
+- **Admin**: Users with admin role have full access to all dashboards (edit/delete any dashboard)
+- **Non-owners**: Cannot edit or delete dashboards they don't own
+
+**Dashboard Duplication**:
+- Any authenticated user can duplicate any dashboard
+- The duplicate becomes owned by the user who performed the duplication
+- This allows users to customize existing dashboards without affecting the original
+
 ### Entity: Dashboard
 
 **File**: `src/dashboards/domain/entities/dashboard.entity.ts`
@@ -698,8 +716,8 @@ export class Dashboard {
     public readonly uuid: string,
     public name: string,
     public description: string,
+    public ownerUuid: string,             // User UUID who owns this dashboard
     public tiles: TileConfig[],
-    public isShared: boolean,             // Prepare for future user ownership
     public readonly createdAt: string,    // ISO 8601
     public updatedAt: string,             // ISO 8601
   ) {}
@@ -727,20 +745,22 @@ export class DashboardDto {
   uuid?: string;
   name: string;
   description: string;
+  ownerUuid?: string;              // Set automatically from JWT on create
   tiles: TileConfigDto[];
-  isShared: boolean;
 }
 
 export class DashboardListItemDto {
   uuid: string;
   name: string;
   description: string;
+  ownerUuid: string;
   tileCount: number;
-  isShared: boolean;
   updatedAt: string;
+  isOwner: boolean;                // True if current user is owner or admin
   _links: {
     self: { href: string };
     data: { href: string };
+    duplicate?: { href: string };  // Always available for authenticated users
   };
 }
 ```
@@ -816,14 +836,15 @@ export abstract class DashboardRepository {
 
 ### Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/dashboards` | Paginated list (query: `page`, `limit`) |
-| GET | `/dashboards/:id` | Get single dashboard configuration |
-| GET | `/dashboards/:id/data` | Get dashboard data with metric/KPI values (supports `startDate`, `endDate`) |
-| POST | `/dashboards` | Create new dashboard |
-| PUT | `/dashboards/:id` | Update dashboard |
-| DELETE | `/dashboards/:id` | Delete dashboard |
+| Method | Endpoint | Description | Authorization |
+|--------|----------|-------------|---------------|
+| GET | `/dashboards` | List all dashboards | Authenticated users |
+| GET | `/dashboards/:id` | Get single dashboard configuration | Authenticated users |
+| GET | `/dashboards/:id/data` | Get dashboard data with metric/KPI values (supports `startDate`, `endDate`) | Authenticated users |
+| POST | `/dashboards` | Create new dashboard (ownerUuid set from JWT) | Authenticated users |
+| POST | `/dashboards/:id/duplicate` | Duplicate dashboard (creates copy owned by current user) | Authenticated users |
+| PUT | `/dashboards/:id` | Update dashboard | Owner or Admin only |
+| DELETE | `/dashboards/:id` | Delete dashboard | Owner or Admin only |
 
 ### Dashboard Data Endpoint
 

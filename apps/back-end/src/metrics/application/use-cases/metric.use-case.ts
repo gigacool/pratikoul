@@ -68,6 +68,7 @@ export class MetricUseCase {
       dto.values,
       dto.aggregation,
       dto.tags,
+      dto.validationRules,
     );
     await this.metricService.create(metric);
   }

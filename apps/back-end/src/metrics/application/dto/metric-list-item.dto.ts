@@ -6,5 +6,6 @@ export class MetricListItemDto {
   description: string;
   _links: {
     self: { href: string };
+    kpis: { href: string; title: string };
   };
 }

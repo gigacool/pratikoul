@@ -6,6 +6,13 @@ export interface MetricValue {
   timestamp: string; // ISO string
 }
 
+export interface MetricValidationRules {
+  min?: number;                    // Minimum allowed value
+  max?: number;                    // Maximum allowed value
+  allowNegative?: boolean;         // Allow negative values (default: true)
+  requiredFrequency?: 'daily' | 'weekly' | 'monthly';  // Expected data frequency
+}
+
 export class Metric {
   constructor(
     public readonly uuid: string,
@@ -16,5 +23,6 @@ export class Metric {
     public values: MetricValue[],
     public aggregation: MetricAggregation,
     public tags: string[],
+    public validationRules?: MetricValidationRules,
   ) {}
 }

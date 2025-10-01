@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -X POST http://localhost:3001/auth/login -H \"Content-Type: application/json\" -d \"{\"\"email\"\":\"\"viewer@example.com\"\",\"\"password\"\":\"\"viewer123\"\"}\")",
+      "Bash(python:*)",
+      "Bash(curl:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
